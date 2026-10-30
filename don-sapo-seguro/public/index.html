@@ -1,0 +1,134 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#101112">
+<meta name="description" content="Don Sapo Barbearia — escolha seus procedimentos e solicite um horário.">
+<meta name="robots" content="index,follow">
+<title>Don Sapo | Barbearia</title><style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Oswald:wght@400;500;600;700&display=swap');:root{--bg:#101112;--panel:#191b1b;--line:#303333;--muted:#a1a5a5;--accent:#c8f169;--white:#f3f3ee}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--white);font-family:'DM Sans',sans-serif}.top{position:sticky;top:0;z-index:3;background:#101112f5;border-bottom:1px solid var(--line);padding:14px 17px;display:flex;align-items:center;justify-content:space-between}.brand{display:flex;align-items:center;gap:10px}.mark{border:1px solid #68734d;border-radius:50%;width:39px;height:39px;display:grid;place-items:center;color:var(--accent);font-family:Oswald;font-size:18px}.brand b{display:block;font-family:Oswald;letter-spacing:1.5px}.brand small{font-size:9px;letter-spacing:3px;color:var(--muted)}button,input,select{font:inherit}button{cursor:pointer}.nav{background:none;color:#ddd;border:1px solid #363a38;border-radius:4px;padding:9px;font-size:11px}.hero{min-height:440px;padding:46px 22px 28px;display:flex;flex-direction:column;justify-content:end;background:linear-gradient(0deg,#101112 0%,#101112df 35%,#10111240 100%),url('https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&w=900&q=80') center/cover}.eyebrow{font-size:9px;letter-spacing:2px;color:var(--accent);font-weight:700}.hero h1{font:500 49px/.98 Oswald;text-transform:uppercase;margin:17px 0}.hero h1 em,h2 em{font-style:normal;color:var(--accent)}.hero p{color:#c5c7c2;font-size:13px;line-height:1.7;max-width:320px}.primary{background:var(--accent);color:#141611;border:0;border-radius:3px;padding:15px 16px;font-weight:700;width:100%;margin-top:14px}.address{font-size:11px;color:#c3c5c0;margin-top:23px}.wrap{padding:34px 16px}.head{display:flex;justify-content:space-between;align-items:end;margin-bottom:20px}.head h2,h2{font:500 34px Oswald;text-transform:uppercase;margin:7px 0}.head p{color:var(--muted);font-size:10px;text-align:right;line-height:1.5}.service{display:flex;gap:12px;align-items:start;text-align:left;width:100%;background:var(--panel);color:var(--white);border:1px solid var(--line);border-radius:4px;padding:16px;margin-bottom:9px}.service.chosen{border-color:var(--accent);background:#1c2118}.service-photo{width:68px;height:68px;flex:0 0 68px;object-fit:cover;border-radius:3px;border:1px solid #383d37;background:#222}.service .num{font:14px Oswald;color:#858980}.info{flex:1}.info b{font-size:14px}.info p{font-size:11px;color:var(--muted);margin:7px 0 13px}.price{font-weight:700}.duration{font-size:10px;color:var(--muted);margin-left:10px}.pick{border:1px solid #454a42;color:var(--accent);border-radius:50%;width:25px;height:25px;display:grid;place-items:center}.summary{padding:15px;background:#1a1c1b;border-left:2px solid var(--accent);font-size:12px;margin:18px 0}.summary small{display:block;color:var(--muted);margin-bottom:8px}.field{display:block;margin:15px 0;font-size:12px;color:#d3d5cf}.field input,.field select{display:block;width:100%;margin-top:8px;padding:13px;background:#101212;color:white;border:1px solid #393d3b;border-radius:3px}.slot-note{font-size:11px;color:var(--muted);line-height:1.6}.slots{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:13px 0}.slot{padding:11px 2px;background:#151716;color:#eee;border:1px solid #393d3b;border-radius:3px;font-size:12px}.slot.selected{background:var(--accent);color:#101112;border-color:var(--accent);font-weight:700}.slot:disabled{opacity:.25;text-decoration:line-through;cursor:not-allowed}.notice{padding:14px;background:#22271a;border:1px solid #52672f;font-size:12px;line-height:1.6;margin-top:12px}.hidden{display:none}.admin-card{padding:16px;background:var(--panel);border:1px solid var(--line);border-radius:4px;margin:10px 0;font-size:12px}.admin-card b{font-size:15px}.admin-card button{padding:9px;background:var(--accent);border:0;margin:10px 5px 0 0;font-size:11px}.muted{color:var(--muted)}footer{border-top:1px solid var(--line);padding:20px 16px;color:#858980;font-size:9px;letter-spacing:1px;display:flex;justify-content:space-between;gap:10px}@media(max-width:380px){.service{gap:8px;padding:11px}.service-photo{width:56px;height:56px;flex-basis:56px}.service .num{font-size:12px}}@media(min-width:700px){.hero{padding:70px 9%;min-height:520px}.hero h1{font-size:72px}.wrap{padding:50px 9%}.services{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}.service{min-height:145px}.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:20px}.booking{max-width:760px}.top{padding:14px 5%}}
+</style></head><body><header class="top"><div class="brand"><div class="mark">DS</div><div><b>DON SAPO</b><small>BARBEARIA</small></div></div><button class="nav" onclick="toggleAdmin()" id="adminNav">Área do barbeiro</button></header><div id="public"><section class="hero"><span class="eyebrow">CORTE NA RÉGUA. HORÁRIO ORGANIZADO.</span><h1>Seu próximo corte<br><em>começa aqui.</em></h1><p>Escolha os procedimentos, selecione seu horário e envie seu pedido sem precisar trocar mensagens.</p><button class="primary" onclick="document.getElementById('catalog').scrollIntoView({behavior:'smooth'})">ESCOLHER PROCEDIMENTOS ↘</button><div class="address">R. Carati, 206 · Eldorado · Diadema — SP</div></section><main class="wrap" id="catalog"><div class="head"><div><span class="eyebrow">ESCOLHA SEU SERVIÇO</span><h2>Catálogo</h2></div><p>Marque um ou<br>mais serviços</p></div><div class="services" id="services"></div><div class="summary" id="summary"><small>SEUS PROCEDIMENTOS</small><b>Selecione um serviço acima</b></div><section class="booking"><span class="eyebrow">RESERVE SEU HORÁRIO</span><h2>Escolha quando.</h2><form id="bookingForm"><label class="field">Nome completo<input id="name" required maxlength="80" placeholder="Seu nome"></label><label class="field">WhatsApp<input id="phone" required inputmode="tel" placeholder="(11) 99999-9999"></label><label class="field">Data<select id="date"></select></label><p class="slot-note" id="slotNote">Selecione os procedimentos para ver os horários compatíveis. Corte simples e corte com procedimento usam vagas diferentes.</p><div class="slots" id="slots"></div><button class="primary" type="submit">SOLICITAR AGENDAMENTO ↗</button></form><div id="notificationChoice" class="notice hidden"><b>Pedido registrado.</b><p>Se quiser, permita uma notificação neste dispositivo. Isso não interfere no seu agendamento.</p><button class="nav" id="allowNotification" type="button">Permitir notificação</button><button class="nav" id="skipNotification" type="button">Agora não</button></div><div id="result" class="notice hidden"></div></section></main></div><main id="admin" class="wrap hidden">
+<span class="eyebrow">ÁREA ADMINISTRATIVA · ACESSO RESTRITO</span>
+<h2>Agenda online.</h2>
+<section id="adminLogin" class="booking">
+<p class="muted">Entre com a conta administrativa da barbearia.</p>
+<label class="field">E-mail<input id="adminEmail" type="email" autocomplete="username" maxlength="254" required placeholder="E-mail administrativo"></label>
+<label class="field">Senha<input id="adminPassword" type="password" autocomplete="current-password" maxlength="128" required placeholder="Sua senha"></label>
+<button class="primary" id="loginBtn" type="button">ENTRAR</button>
+<button class="nav" id="forgotBtn" type="button">Esqueci minha senha</button>
+<p id="authMessage" class="slot-note" aria-live="polite"></p>
+</section>
+<section id="mfaPanel" class="booking hidden">
+<h2>Verificação em duas etapas.</h2>
+<p id="mfaInstructions" class="muted">Digite o código do seu aplicativo autenticador.</p>
+<div id="mfaQrWrap" class="hidden"><img id="mfaQr" alt="QR code para configurar o autenticador" style="max-width:220px;background:white;padding:10px"><p id="mfaSecret" class="slot-note"></p></div>
+<label class="field">Código de 6 dígitos<input id="mfaCode" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="000000"></label>
+<button class="primary" id="mfaVerifyBtn" type="button">VERIFICAR E CONTINUAR</button>
+<p id="mfaMessage" class="slot-note" aria-live="polite"></p>
+</section>
+<section id="passwordResetPanel" class="booking hidden">
+<h2>Redefinir senha.</h2>
+<label class="field">Nova senha<input id="newPassword" type="password" autocomplete="new-password" minlength="12" maxlength="128"></label>
+<button class="primary" id="savePasswordBtn" type="button">SALVAR NOVA SENHA</button>
+<p id="resetMessage" class="slot-note" aria-live="polite"></p>
+</section>
+<section id="adminDashboard" class="hidden">
+<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:space-between"><p class="muted">Pedidos recebidos · sincronizados online</p><button class="nav" id="refreshBtn" type="button">Atualizar agenda</button></div>
+<div id="adminList"></div>
+<button class="nav" id="logoutBtn" type="button">Sair da conta</button>
+<p class="slot-note">Acesso administrativo protegido por senha e autenticação em duas etapas. Não compartilhe sua conta.</p>
+</section>
+<button class="nav" onclick="toggleAdmin()">Voltar ao site</button>
+</main><footer><span>© DON SAPO BARBEARIA</span><span>AGENDA EM DIA.</span></footer><script type="module">
+const S=[
+ ['Corte simples',40,30,'simple','Corte tradicional, bem feito.','assets/imagens/procedimentos/Corte_simples.jpg','corte-simples'],
+ ['Corte americano',40,30,'simple','Acabamento clássico.','assets/imagens/procedimentos/Corte_americano.jpg','corte-americano'],
+ ['Corte giletado',40,30,'simple','Corte com detalhe.','assets/imagens/procedimentos/Corte_giletado.jpg','corte-giletado'],
+ ['Americano com risco',45,30,'simple','Corte com risco.','assets/imagens/procedimentos/Corte_americano_com_risco.jpg','americano-com-risco'],
+ ['Cabelo & barba',65,60,'procedure','Combo completo.','assets/imagens/procedimentos/Cabelo_e_barba.jpg','cabelo-barba'],
+ ['Corte, barba e sobrancelhas',75,60,'procedure','Combo completo para sair alinhado.','assets/imagens/procedimentos/Corte_barba_e_sobrancelhas.jpg','corte-barba-sobrancelhas'],
+ ['Corte com penteado',55,60,'procedure','Corte finalizado com penteado.','assets/imagens/procedimentos/Corte_com_penteado.jpg','corte-penteado'],
+ ['Corte com luzes',140,120,'procedure','Corte e luzes.','assets/imagens/procedimentos/Corte_com_luzes.jpg','corte-luzes'],
+ ['Corte e platinado',180,150,'procedure','Descoloração e tonalização.','assets/imagens/procedimentos/Corte_e_platinado.jpg','corte-platinado'],
+ ['Barboterapia',40,30,'simple','Barba desenhada e finalizada.','assets/imagens/procedimentos/Barboterapia.jpg','barboterapia']
+];
+let selected=new Set(), chosenTime='', bookedSlots=new Set(), csrfToken='';
+const $=id=>document.getElementById(id);
+const money=n=>Number(n).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+const escapeHTML=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const dateKey=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+function msg(id,text){$(id).textContent=text}
+async function api(path,{method='GET',body,admin=false}={}){
+ const headers={'Content-Type':'application/json'};
+ if(admin && csrfToken) headers['X-CSRF-Token']=csrfToken;
+ const response=await fetch(`/api${path}`,{method,headers,credentials:'same-origin',body:body?JSON.stringify(body):undefined});
+ const data=await response.json().catch(()=>({error:'REQUEST_FAILED'}));
+ if(!response.ok){const e=new Error(data.error||'REQUEST_FAILED');e.status=response.status;throw e}
+ return data;
+}
+function getDateOptions(){const sel=$('date');sel.innerHTML='';for(let i=0;i<7;i++){let d=new Date();d.setDate(d.getDate()+i);sel.add(new Option(d.toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'short'}),dateKey(d)))} }
+function renderServices(){
+ $('services').innerHTML=S.map((s,i)=>`<button class="service ${selected.has(i)?'chosen':''}" type="button" data-service="${i}"><img class="service-photo" src="${s[5]}" alt="${escapeHTML(s[0])}" loading="lazy"><span class="num">${String(i+1).padStart(2,'0')}</span><span class="info"><b>${escapeHTML(s[0])}</b><p>${escapeHTML(s[4])}</p><strong class="price">${money(s[1])}</strong><span class="duration">30 min na agenda</span></span><span class="pick">${selected.has(i)?'✓':'+'}</span></button>`).join('');
+ $('services').querySelectorAll('[data-service]').forEach(b=>b.addEventListener('click',()=>pick(Number(b.dataset.service))));
+ const total=[...selected].reduce((a,i)=>a+S[i][1],0);
+ $('summary').innerHTML=`<small>SEUS PROCEDIMENTOS</small><b>${selected.size?[...selected].map(i=>escapeHTML(S[i][0])).join(' + '):'Selecione um serviço acima'}</b>${selected.size?`<p>${money(total)} · 30 minutos reservados na agenda</p>`:''}`;
+ renderSlots();
+}
+function pick(i){selected.has(i)?selected.delete(i):selected.add(i);chosenTime='';renderServices()}
+function selectedType(){return [...selected].some(i=>S[i][3]==='procedure')?'procedure':'simple'}
+async function refreshBookedSlots(){
+ bookedSlots.clear();
+ if($('date').value){try{const data=await api(`/availability?date=${encodeURIComponent($('date').value)}`);(data.booked||[]).forEach(x=>bookedSlots.add(x));}catch{msg('slotNote','Não foi possível carregar a agenda. Atualize a página e tente novamente.')}}
+ renderSlots();
+}
+function renderSlots(){
+ const type=selectedType(), slots=[];
+ for(let h=9;h<19;h++){slots.push([`${String(h).padStart(2,'0')}:00`,'simple']);slots.push([`${String(h).padStart(2,'0')}:30`,'procedure'])}
+ const today=dateKey(new Date());
+ $('slots').innerHTML=slots.map(([t,k])=>{
+   const used=bookedSlots.has(t);
+   const past=$('date').value===today&&(()=>{const [hh,mm]=t.split(':').map(Number),now=new Date();return hh*60+mm<=now.getHours()*60+now.getMinutes()})();
+   const disabled=!selected.size||k!==type||used||past;
+   return `<button type="button" class="slot ${chosenTime===t?'selected':''}" ${disabled?'disabled':''} data-slot="${t}">${t}</button>`;
+ }).join('');
+ $('slots').querySelectorAll('[data-slot]').forEach(b=>b.addEventListener('click',()=>{chosenTime=b.dataset.slot;renderSlots()}));
+ $('slotNote').textContent=selected.size?`Tipo de vaga: ${type==='simple'?'corte simples (:00)':'corte + procedimento (:30)'}. Cada atendimento ocupa exatamente 30 minutos.`:'Selecione os procedimentos para ver os horários compatíveis.';
+}
+$('date').addEventListener('change',()=>{chosenTime='';refreshBookedSlots()});
+$('bookingForm').addEventListener('submit',async e=>{
+ e.preventDefault();
+ if(!selected.size){alert('Escolha pelo menos um procedimento.');return}
+ if(!chosenTime){alert('Escolha um horário disponível.');return}
+ const name=$('name').value.trim(), phone=$('phone').value.trim();
+ if(name.length<2||name.length>80||phone.replace(/\D/g,'').length<10||phone.length>24){alert('Confira seu nome e WhatsApp.');return}
+ const button=$('bookingForm').querySelector('button[type=submit]');button.disabled=true;button.textContent='ENVIANDO PEDIDO...';
+ try{
+   const data=await api('/bookings',{method:'POST',body:{customerName:name,customerPhone:phone,serviceIds:[...selected].map(i=>S[i][6]),date:$('date').value,time:chosenTime}});
+   $('result').classList.remove('hidden');
+   $('result').innerHTML=`Pedido enviado para a barbearia.<br><b>Protocolo: ${escapeHTML(data.bookingCode)}</b><br>${$('date').value.split('-').reverse().join('/')} às ${chosenTime}.<br>O horário depende da confirmação do barbeiro.`;
+   $('notificationChoice').classList.remove('hidden');
+   $('bookingForm').reset();selected.clear();chosenTime='';renderServices();await refreshBookedSlots();
+ }catch(err){alert(err.message==='SLOT_UNAVAILABLE'?'Esse horário acabou de ser reservado. Escolha outro.':err.message==='INVALID_SLOT_TYPE'?'Esse tipo de atendimento não corresponde ao horário selecionado.':'Não foi possível enviar. Confira os dados e tente novamente.');await refreshBookedSlots()}
+ finally{button.disabled=false;button.textContent='SOLICITAR AGENDAMENTO ↗'}
+});
+$('allowNotification').addEventListener('click',async()=>{
+ if(!('Notification' in window)){msg('notificationChoice','Este navegador não oferece notificações. Seu pedido já está registrado.');return}
+ try{const permission=await Notification.requestPermission();if(permission==='granted')new Notification('Don Sapo',{body:'Seu pedido de agendamento foi registrado.'});msg('notificationChoice',permission==='granted'?'Notificação ativada neste dispositivo. Seu pedido já está registrado.':'Notificações não foram permitidas. Seu pedido continua registrado.')}catch{msg('notificationChoice','Não foi possível ativar notificações. Seu pedido continua registrado.')}
+});
+$('skipNotification').addEventListener('click',()=>$('notificationChoice').classList.add('hidden'));
+function toggleAdmin(){const on=$('admin').classList.contains('hidden');$('admin').classList.toggle('hidden',!on);$('public').classList.toggle('hidden',on);$('adminNav').textContent=on?'Voltar ao site':'Área do barbeiro';window.scrollTo(0,0);if(on)initializeAdmin()}
+window.toggleAdmin=toggleAdmin;
+function showAdminPanel(which){['adminLogin','mfaPanel','passwordResetPanel','adminDashboard'].forEach(id=>$(id).classList.toggle('hidden',id!==which))}
+async function initializeAdmin(){showAdminPanel('adminLogin');msg('authMessage','');try{const s=await api('/admin/session');csrfToken=s.csrfToken||'';if(s.authenticated){if(s.mfaRequired){msg('mfaInstructions','Digite o código do aplicativo autenticador.');$('mfaQrWrap').classList.add('hidden');showAdminPanel('mfaPanel')}else await loadAdminBookings()}}catch{}}
+$('loginBtn').addEventListener('click',async()=>{
+ const email=$('adminEmail').value.trim(),password=$('adminPassword').value;
+ if(!email||!password){msg('authMessage','Informe e-mail e senha.');return}
+ $('loginBtn').disabled=true;msg('authMessage','Validando acesso...');
+ try{const data=await api('/admin/login',{method:'POST',body:{email,password}});csrfToken=data.csrfToken; if(data.mfaSetup){await setupMfa()}else if(data.mfaRequired){msg('mfaInstructions','Digite o código atual do seu aplicativo autenticador.');$('mfaQrWrap').classList.add('hidden');showAdminPanel('mfaPanel')}}catch{msg('authMessage','Não foi possível entrar. Confira os dados ou tente novamente mais tarde.')}finally{$('loginBtn').disabled=false}
+});
+async function setupMfa(){try{const d=await api('/admin/mfa/setup',{method:'POST',admin:true});$('mfaQr').src=d.qrCodeDataUrl;$('mfaSecret').textContent='Chave manual: '+d.secret;msg('mfaInstructions','Cadastre esta chave no aplicativo autenticador e informe o código de 6 dígitos.');$('mfaQrWrap').classList.remove('hidden');showAdminPanel('mfaPanel')}catch{msg('authMessage','Não foi possível iniciar a configuração do autenticador.')}}
+$('mfaVerifyBtn').addEventListener('click',async()=>{const code=$('mfaCode').value.replace(/\D/g,'');if(code.length!==6){msg('mfaMessage','Informe o código de 6 dígitos.');return}try{const d=await api('/admin/mfa/verify',{method:'POST',body:{code},admin:true});csrfToken=d.csrfToken||csrfToken;await loadAdminBookings()}catch{msg('mfaMessage','Código inválido ou expirado. Tente novamente.')}});
+$('forgotBtn').addEventListener('click',()=>msg('authMessage','Para redefinir a senha administrativa, use o comando seguro de redefinição descrito no README.'));
+$('savePasswordBtn').addEventListener('click',()=>msg('resetMessage','A redefinição deve ser feita pelo administrador do servidor, conforme o README.'));
+async function loadAdminBookings(){try{const d=await api('/admin/bookings');showAdminPanel('adminDashboard');$('adminList').innerHTML=d.bookings.length?d.bookings.map(b=>`<div class="admin-card"><b>${escapeHTML(b.booking_time.slice(0,5))} · ${escapeHTML(b.customer_name)}</b><p>${escapeHTML(b.booking_date.split('-').reverse().join('/'))} · ${b.service_names.map(escapeHTML).join(', ')}</p><p>${escapeHTML(b.customer_phone)} · ${money(b.total_cents/100)}</p><p>Protocolo: ${escapeHTML(b.booking_code)} · Status: ${b.status==='pending'?'Pendente':b.status==='confirmed'?'Confirmado':'Cancelado'}</p>${b.status==='pending'?`<button data-action="confirmed" data-id="${b.id}">Confirmar pedido</button>`:''}${b.status!=='cancelled'?`<button data-action="cancelled" data-id="${b.id}">Cancelar</button>`:''}</div>`).join(''):'<p class="notice">Nenhum pedido recebido.</p>';$('adminList').querySelectorAll('[data-action]').forEach(btn=>btn.addEventListener('click',()=>updateBooking(btn.dataset.id,btn.dataset.action)))}catch{showAdminPanel('adminLogin');msg('authMessage','Acesso negado ou sessão expirada. Entre novamente.')}}
+async function updateBooking(id,status){try{await api(`/admin/bookings/${encodeURIComponent(id)}`,{method:'PATCH',body:{status},admin:true});await loadAdminBookings()}catch{alert('Não foi possível atualizar o pedido.')}}
+$('refreshBtn').addEventListener('click',loadAdminBookings);
+$('logoutBtn').addEventListener('click',async()=>{try{await api('/admin/logout',{method:'POST',admin:true})}catch{}csrfToken='';showAdminPanel('adminLogin');msg('authMessage','Você saiu da área administrativa.')});
+getDateOptions();renderServices();refreshBookedSlots();
+</script></body></html>
