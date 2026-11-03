@@ -876,6 +876,11 @@ app.post(
   }
 );
 
+// Página inicial: o HTML público é servido pela CDN da Vercel.
+app.get('/', (_req, res) => {
+  res.redirect(302, '/index.html');
+});
+
 // Arquivos públicos.
 app.use(
   express.static(
