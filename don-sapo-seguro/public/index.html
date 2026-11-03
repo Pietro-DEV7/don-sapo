@@ -14,14 +14,6 @@
 <button class="nav" id="forgotBtn" type="button">Esqueci minha senha</button>
 <p id="authMessage" class="slot-note" aria-live="polite"></p>
 </section>
-<section id="mfaPanel" class="booking hidden">
-<h2>Verificação em duas etapas.</h2>
-<p id="mfaInstructions" class="muted">Digite o código do seu aplicativo autenticador.</p>
-<div id="mfaQrWrap" class="hidden"><img id="mfaQr" alt="QR code para configurar o autenticador" style="max-width:220px;background:white;padding:10px"><p id="mfaSecret" class="slot-note"></p></div>
-<label class="field">Código de 6 dígitos<input id="mfaCode" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="000000"></label>
-<button class="primary" id="mfaVerifyBtn" type="button">VERIFICAR E CONTINUAR</button>
-<p id="mfaMessage" class="slot-note" aria-live="polite"></p>
-</section>
 <section id="passwordResetPanel" class="booking hidden">
 <h2>Redefinir senha.</h2>
 <label class="field">Nova senha<input id="newPassword" type="password" autocomplete="new-password" minlength="12" maxlength="128"></label>
@@ -124,10 +116,10 @@ $('loginBtn').addEventListener('click',async()=>{
  const email=$('adminEmail').value.trim(),password=$('adminPassword').value;
  if(!email||!password){msg('authMessage','Informe e-mail e senha.');return}
  $('loginBtn').disabled=true;msg('authMessage','Validando acesso...');
- try{const data=await api('/admin/login',{method:'POST',body:{email,password}});csrfToken=data.csrfToken; if(data.mfaSetup){await setupMfa()}else if(data.mfaRequired){msg('mfaInstructions','Digite o código atual do seu aplicativo autenticador.');$('mfaQrWrap').classList.add('hidden');showAdminPanel('mfaPanel')}}catch{msg('authMessage','Não foi possível entrar. Confira os dados ou tente novamente mais tarde.')}finally{$('loginBtn').disabled=false}
+ try{const data=await api('/admin/login',{method:'POST',body:{email,password}});csrfToken=data.csrfToken||'';await loadAdminBookings()}catch{msg('authMessage','Não foi possível entrar. Confira os dados ou tente novamente mais tarde.')}finally{$('loginBtn').disabled=false}
 });
 async function setupMfa(){try{const d=await api('/admin/mfa/setup',{method:'POST',admin:true});$('mfaQr').src=d.qrCodeDataUrl;$('mfaSecret').textContent='Chave manual: '+d.secret;msg('mfaInstructions','Cadastre esta chave no aplicativo autenticador e informe o código de 6 dígitos.');$('mfaQrWrap').classList.remove('hidden');showAdminPanel('mfaPanel')}catch{msg('authMessage','Não foi possível iniciar a configuração do autenticador.')}}
-$('mfaVerifyBtn').addEventListener('click',async()=>{const code=$('mfaCode').value.replace(/\D/g,'');if(code.length!==6){msg('mfaMessage','Informe o código de 6 dígitos.');return}try{const d=await api('/admin/mfa/verify',{method:'POST',body:{code},admin:true});csrfToken=d.csrfToken||csrfToken;await loadAdminBookings()}catch{msg('mfaMessage','Código inválido ou expirado. Tente novamente.')}});
+
 $('forgotBtn').addEventListener('click',()=>msg('authMessage','Para redefinir a senha administrativa, use o comando seguro de redefinição descrito no README.'));
 $('savePasswordBtn').addEventListener('click',()=>msg('resetMessage','A redefinição deve ser feita pelo administrador do servidor, conforme o README.'));
 async function loadAdminBookings(){try{const d=await api('/admin/bookings');showAdminPanel('adminDashboard');$('adminList').innerHTML=d.bookings.length?d.bookings.map(b=>`<div class="admin-card"><b>${escapeHTML(b.booking_time.slice(0,5))} · ${escapeHTML(b.customer_name)}</b><p>${escapeHTML(b.booking_date.split('-').reverse().join('/'))} · ${b.service_names.map(escapeHTML).join(', ')}</p><p>${escapeHTML(b.customer_phone)} · ${money(b.total_cents/100)}</p><p>Protocolo: ${escapeHTML(b.booking_code)} · Status: ${b.status==='pending'?'Pendente':b.status==='confirmed'?'Confirmado':'Cancelado'}</p>${b.status==='pending'?`<button data-action="confirmed" data-id="${b.id}">Confirmar pedido</button>`:''}${b.status!=='cancelled'?`<button data-action="cancelled" data-id="${b.id}">Cancelar</button>`:''}</div>`).join(''):'<p class="notice">Nenhum pedido recebido.</p>';$('adminList').querySelectorAll('[data-action]').forEach(btn=>btn.addEventListener('click',()=>updateBooking(btn.dataset.id,btn.dataset.action)))}catch{showAdminPanel('adminLogin');msg('authMessage','Acesso negado ou sessão expirada. Entre novamente.')}}
