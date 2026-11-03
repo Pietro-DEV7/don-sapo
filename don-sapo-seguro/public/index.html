@@ -21,7 +21,7 @@
 <p id="resetMessage" class="slot-note" aria-live="polite"></p>
 </section>
 <section id="adminDashboard" class="hidden">
-<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:space-between"><p class="muted">Pedidos recebidos · sincronizados online</p><button class="nav" id="refreshBtn" type="button">Atualizar agenda</button></div>
+<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:space-between"><div><p class="muted">Pedidos recebidos · sincronizados online</p><p id="agendaStatus" class="slot-note" aria-live="polite">Toque em “Atualizar agenda” para sincronizar.</p></div><button class="nav" id="refreshBtn" type="button">Atualizar agenda</button></div>
 <div id="adminList"></div>
 <button class="nav" id="logoutBtn" type="button">Sair da conta</button>
 <p class="slot-note">Acesso administrativo protegido por senha. A autenticação em duas etapas está temporariamente desativada.</p>
@@ -49,7 +49,7 @@ function msg(id,text){$(id).textContent=text}
 async function api(path,{method='GET',body,admin=false}={}){
  const headers={'Content-Type':'application/json'};
  if(admin && csrfToken) headers['X-CSRF-Token']=csrfToken;
- const response=await fetch(`/api${path}`,{method,headers,credentials:'same-origin',body:body?JSON.stringify(body):undefined});
+ const response=await fetch(`/api${path}`,{method,headers,credentials:'same-origin',cache:'no-store',body:body?JSON.stringify(body):undefined});
  const data=await response.json().catch(()=>({error:'REQUEST_FAILED'}));
  if(!response.ok){const e=new Error(data.error||'REQUEST_FAILED');e.status=response.status;throw e}
  return data;
@@ -122,9 +122,34 @@ async function setupMfa(){try{const d=await api('/admin/mfa/setup',{method:'POST
 
 $('forgotBtn').addEventListener('click',()=>msg('authMessage','Para redefinir a senha administrativa, use o comando seguro de redefinição descrito no README.'));
 $('savePasswordBtn').addEventListener('click',()=>msg('resetMessage','A redefinição deve ser feita pelo administrador do servidor, conforme o README.'));
-async function loadAdminBookings(){try{const d=await api('/admin/bookings');showAdminPanel('adminDashboard');$('adminList').innerHTML=d.bookings.length?d.bookings.map(b=>`<div class="admin-card"><b>${escapeHTML(b.booking_time.slice(0,5))} · ${escapeHTML(b.customer_name)}</b><p>${escapeHTML(b.booking_date.split('-').reverse().join('/'))} · ${b.service_names.map(escapeHTML).join(', ')}</p><p>${escapeHTML(b.customer_phone)} · ${money(b.total_cents/100)}</p><p>Protocolo: ${escapeHTML(b.booking_code)} · Status: ${b.status==='pending'?'Pendente':b.status==='confirmed'?'Confirmado':'Cancelado'}</p>${b.status==='pending'?`<button data-action="confirmed" data-id="${b.id}">Confirmar pedido</button>`:''}${b.status!=='cancelled'?`<button data-action="cancelled" data-id="${b.id}">Cancelar</button>`:''}</div>`).join(''):'<p class="notice">Nenhum pedido recebido.</p>';$('adminList').querySelectorAll('[data-action]').forEach(btn=>btn.addEventListener('click',()=>updateBooking(btn.dataset.id,btn.dataset.action)))}catch{showAdminPanel('adminLogin');msg('authMessage','Acesso negado ou sessão expirada. Entre novamente.')}}
-async function updateBooking(id,status){try{await api(`/admin/bookings/${encodeURIComponent(id)}`,{method:'PATCH',body:{status},admin:true});await loadAdminBookings()}catch{alert('Não foi possível atualizar o pedido.')}}
-$('refreshBtn').addEventListener('click',loadAdminBookings);
+async function loadAdminBookings(){
+ const button=$('refreshBtn');
+ const originalLabel=button?.textContent||'Atualizar agenda';
+ if(button){button.disabled=true;button.textContent='Atualizando...'}
+ try{
+  const d=await api('/admin/bookings');
+  showAdminPanel('adminDashboard');
+  $('adminList').innerHTML=d.bookings.length?d.bookings.map(b=>`<div class="admin-card"><b>${escapeHTML(b.booking_time.slice(0,5))} · ${escapeHTML(b.customer_name)}</b><p>${escapeHTML(b.booking_date.split('-').reverse().join('/'))} · ${b.service_names.map(escapeHTML).join(', ')}</p><p>${escapeHTML(b.customer_phone)} · ${money(b.total_cents/100)}</p><p>Protocolo: ${escapeHTML(b.booking_code)} · Status: ${b.status==='pending'?'Pendente':'Confirmado'}</p>${b.status==='pending'?'<button data-action="confirmed" data-id="'+b.id+'">Confirmar pedido</button>':''}<button data-action="cancelled" data-id="${b.id}">Cancelar</button></div>`).join(''):'<p class="notice">Nenhum pedido ativo na agenda.</p>';
+  $('adminList').querySelectorAll('[data-action]').forEach(btn=>btn.addEventListener('click',()=>updateBooking(btn.dataset.id,btn.dataset.action)));
+  msg('agendaStatus','Agenda sincronizada às '+new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})+'.');
+ }catch(err){
+  if($('adminDashboard').classList.contains('hidden')){
+   showAdminPanel('adminLogin');
+   msg('authMessage','Acesso expirado ou indisponibilidade ao carregar a agenda. Entre novamente.');
+  }else{
+   msg('agendaStatus','Não foi possível atualizar. Verifique a conexão e tente novamente.');
+  }
+ }finally{
+  if(button){button.disabled=false;button.textContent=originalLabel}
+ }
+}
+async function updateBooking(id,status){
+ try{
+  await api(`/admin/bookings/${encodeURIComponent(id)}`,{method:'PATCH',body:{status},admin:true});
+  await loadAdminBookings();
+ }catch{alert('Não foi possível atualizar o pedido.')}
+}
+$('refreshBtn').addEventListener('click',()=>loadAdminBookings());
 $('logoutBtn').addEventListener('click',async()=>{try{await api('/admin/logout',{method:'POST',admin:true})}catch{}csrfToken='';showAdminPanel('adminLogin');msg('authMessage','Você saiu da área administrativa.')});
 getDateOptions();renderServices();refreshBookedSlots();
 </script></body></html>
