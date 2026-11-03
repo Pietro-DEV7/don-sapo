@@ -770,6 +770,7 @@ app.get(
           status,
           created_at
          FROM bookings
+         WHERE status <> 'cancelled'
          ORDER BY booking_date, booking_time`
       );
 
