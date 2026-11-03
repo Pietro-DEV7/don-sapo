@@ -306,13 +306,9 @@ function requireCsrf(req, res, next) {
 }
 
 // Exige autenticação em duas etapas.
-function requireMfa(req, res, next) {
-  if (!req.admin.mfa_verified) {
-    return res.status(403).json({
-      error: 'MFA_REQUIRED'
-    });
-  }
-
+// MFA temporariamente desativado a pedido do proprietário.
+// A autenticação administrativa permanece protegida por senha, sessão e CSRF.
+function requireMfa(_req, _res, next) {
   next();
 }
 
@@ -546,7 +542,7 @@ app.get('/api/admin/session', async (req, res, next) => {
       s
         ? {
             authenticated: true,
-            mfaRequired: !s.mfa_verified,
+            mfaRequired: false,
             csrfToken: req.cookies[CSRF_COOKIE] || ''
           }
         : {
@@ -622,7 +618,7 @@ app.post('/api/admin/login', loginLimiter, async (req, res, next) => {
         expires_at
       )
       VALUES(
-        $1,$2,$3,false,now() + interval '8 hours'
+        $1,$2,$3,true,now() + interval '8 hours'
       )`,
       [
         user.id,
@@ -635,8 +631,8 @@ app.post('/api/admin/login', loginLimiter, async (req, res, next) => {
 
     res.json({
       authenticated: true,
-      mfaSetup: !user.totp_secret_enc,
-      mfaRequired: !!user.totp_secret_enc,
+      mfaSetup: false,
+      mfaRequired: false,
       csrfToken: csrf
     });
 
