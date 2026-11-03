@@ -66,11 +66,6 @@ app.use(
           "'unsafe-inline'"
         ],
 
-        // CORREÇÃO: permite handlers onclick inline.
-        scriptSrcAttr: [
-          "'unsafe-inline'"
-        ],
-
         styleSrc: [
           "'self'",
           "'unsafe-inline'",
@@ -881,6 +876,11 @@ app.post(
   }
 );
 
+// Página inicial: o HTML público é servido pela CDN da Vercel.
+app.get('/', (_req, res) => {
+  res.redirect(302, '/index.html');
+});
+
 // Arquivos públicos.
 app.use(
   express.static(
@@ -913,6 +913,11 @@ app.use((err, req, res, _next) => {
   });
 });
 
-app.listen(PORT, () => {
-  console.log(`Don Sapo rodando na porta ${PORT}`);
-});
+// Exporta o Express para a Vercel e mantém execução local com npm start.
+export default app;
+
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`Don Sapo rodando na porta ${PORT}`);
+  });
+}
