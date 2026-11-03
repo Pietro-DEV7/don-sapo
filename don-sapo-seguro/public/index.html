@@ -24,7 +24,7 @@
 <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:space-between"><p class="muted">Pedidos recebidos · sincronizados online</p><button class="nav" id="refreshBtn" type="button">Atualizar agenda</button></div>
 <div id="adminList"></div>
 <button class="nav" id="logoutBtn" type="button">Sair da conta</button>
-<p class="slot-note">Acesso administrativo protegido por senha e autenticação em duas etapas. Não compartilhe sua conta.</p>
+<p class="slot-note">Acesso administrativo protegido por senha. A autenticação em duas etapas está temporariamente desativada.</p>
 </section>
 <button class="nav" id="backToSite" type="button">Voltar ao site</button>
 </main><footer><span>© DON SAPO BARBEARIA</span><span>AGENDA EM DIA.</span></footer><script type="module">
@@ -110,7 +110,7 @@ $('backToSite').addEventListener('click', toggleAdmin);
 $('scrollCatalog').addEventListener('click', () => {
   $('catalog').scrollIntoView({ behavior: 'smooth' });
 });
-function showAdminPanel(which){['adminLogin','mfaPanel','passwordResetPanel','adminDashboard'].forEach(id=>$(id).classList.toggle('hidden',id!==which))}
+function showAdminPanel(which){['adminLogin','passwordResetPanel','adminDashboard'].forEach(id=>$(id).classList.toggle('hidden',id!==which))}
 async function initializeAdmin(){showAdminPanel('adminLogin');msg('authMessage','');try{const s=await api('/admin/session');csrfToken=s.csrfToken||'';if(s.authenticated){if(s.mfaRequired){msg('mfaInstructions','Digite o código do aplicativo autenticador.');$('mfaQrWrap').classList.add('hidden');showAdminPanel('mfaPanel')}else await loadAdminBookings()}}catch{}}
 $('loginBtn').addEventListener('click',async()=>{
  const email=$('adminEmail').value.trim(),password=$('adminPassword').value;
