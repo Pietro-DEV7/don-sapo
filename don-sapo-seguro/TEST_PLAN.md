@@ -1,30 +1,15 @@
-# Plano de testes — Don Sapo v2
+# Plano de testes — armazenamento local
 
-## Agenda
-- [ ] 09:00 aceita corte simples.
-- [ ] 09:30 aceita procedimento.
-- [ ] 10:00 aceita corte simples.
-- [ ] 10:30 aceita procedimento.
-- [ ] Serviço simples em :30 é rejeitado pela API.
-- [ ] Serviço procedimento em :00 é rejeitado pela API.
-- [ ] Reserva pendente bloqueia vaga.
-- [ ] Reserva cancelada libera vaga.
-- [ ] Duas requisições simultâneas para a mesma vaga: somente uma vence.
-- [ ] Inserção SQL que se sobrepõe é rejeitada pela constraint.
-- [ ] Negar notificações não altera o estado da reserva.
+1. Abrir o site em um navegador limpo e confirmar que catálogo, imagens e valores aparecem.
+2. Criar uma senha local de pelo menos 12 caracteres no painel administrativo.
+3. Criar um agendamento de serviço simples em horário :00.
+4. Criar um agendamento com procedimento em horário :30.
+5. Tentar reservar novamente o mesmo dia e horário no mesmo navegador: a vaga deve aparecer ocupada.
+6. Confirmar um pedido no painel e verificar que o status muda para confirmado.
+7. Cancelar um pedido e verificar que o horário volta a ficar disponível.
+8. Atualizar a página e confirmar que os dados permanecem no mesmo navegador.
+9. Abrir o site em outro navegador ou dispositivo e confirmar que a agenda é independente e vazia.
+10. Limpar os dados do site no navegador e confirmar que os dados locais são apagados.
 
-## Administração
-- [ ] Senha incorreta retorna mensagem genérica.
-- [ ] Rate limit de login é aplicado.
-- [ ] Primeiro login exige cadastro TOTP.
-- [ ] Próximos logins exigem código TOTP.
-- [ ] Sem MFA, endpoints administrativos não retornam dados.
-- [ ] CSRF/Origin inválido é rejeitado.
-- [ ] Logout revoga sessão.
-- [ ] Sessão expira após 8h sem atividade.
-
-## Infraestrutura
-- [ ] HTTPS e HSTS ativos.
-- [ ] Segredos somente no ambiente da hospedagem.
-- [ ] Backup Neon configurado e restauração testada.
-- [ ] Monitoramento e alertas configurados.
+## Limitação esperada
+Não há sincronização, concorrência segura, backup, envio de pedidos ao barbeiro nem garantia de exclusividade de horários entre dispositivos. Esses comportamentos foram removidos intencionalmente para eliminar banco de dados e custos externos.
