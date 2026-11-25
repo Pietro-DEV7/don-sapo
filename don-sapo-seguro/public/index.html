@@ -7,24 +7,24 @@
 <span class="eyebrow">ÁREA ADMINISTRATIVA · ACESSO RESTRITO</span>
 <h2>Agenda online.</h2>
 <section id="adminLogin" class="booking">
-<p class="muted">Entre com a conta administrativa da barbearia.</p>
-<label class="field">E-mail<input id="adminEmail" type="email" autocomplete="username" maxlength="254" required placeholder="E-mail administrativo"></label>
-<label class="field">Senha<input id="adminPassword" type="password" autocomplete="current-password" maxlength="128" required placeholder="Sua senha"></label>
+<p class="muted">Crie uma senha local neste dispositivo para acessar a agenda. Essa senha não é compartilhada com outros aparelhos.</p>
+<label class="field" style="display:none">E-mail<input id="adminEmail" type="email" autocomplete="username" maxlength="254"></label>
+<label class="field">Senha local<input id="adminPassword" type="password" autocomplete="current-password" minlength="12" maxlength="128" required placeholder="Mínimo de 12 caracteres"></label>
 <button class="primary" id="loginBtn" type="button">ENTRAR</button>
-<button class="nav" id="forgotBtn" type="button">Esqueci minha senha</button>
+<button class="nav" id="forgotBtn" type="button">Redefinir senha local</button>
 <p id="authMessage" class="slot-note" aria-live="polite"></p>
 </section>
 <section id="passwordResetPanel" class="booking hidden">
 <h2>Redefinir senha.</h2>
-<label class="field">Nova senha<input id="newPassword" type="password" autocomplete="new-password" minlength="12" maxlength="128"></label>
+<label class="field">Nova senha local<input id="newPassword" type="password" autocomplete="new-password" minlength="12" maxlength="128"></label>
 <button class="primary" id="savePasswordBtn" type="button">SALVAR NOVA SENHA</button>
 <p id="resetMessage" class="slot-note" aria-live="polite"></p>
 </section>
 <section id="adminDashboard" class="hidden">
-<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:space-between"><div><p class="muted">Pedidos recebidos · sincronizados online</p><p id="agendaStatus" class="slot-note" aria-live="polite">Toque em “Atualizar agenda” para sincronizar.</p></div><button class="nav" id="refreshBtn" type="button">Atualizar agenda</button></div>
+<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:space-between"><div><p class="muted">Agendamentos salvos neste dispositivo</p><p id="agendaStatus" class="slot-note" aria-live="polite">Agenda local.</p></div><button class="nav" id="refreshBtn" type="button">Atualizar agenda</button></div>
 <div id="adminList"></div>
 <button class="nav" id="logoutBtn" type="button">Sair da conta</button>
-<p class="slot-note">Acesso administrativo protegido por senha. A autenticação em duas etapas está temporariamente desativada.</p>
+<p class="slot-note">A senha e os agendamentos ficam somente neste navegador. Não há sincronização, backup automático ou proteção de servidor.</p>
 </section>
 <button class="nav" id="backToSite" type="button">Voltar ao site</button>
 </main><footer><span>© DON SAPO BARBEARIA</span><span>AGENDA EM DIA.</span></footer><script type="module">
@@ -46,13 +46,45 @@ const money=n=>Number(n).toLocaleString('pt-BR',{style:'currency',currency:'BRL'
 const escapeHTML=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const dateKey=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 function msg(id,text){$(id).textContent=text}
-async function api(path,{method='GET',body,admin=false}={}){
- const headers={'Content-Type':'application/json'};
- if(admin && csrfToken) headers['X-CSRF-Token']=csrfToken;
- const response=await fetch(`/api${path}`,{method,headers,credentials:'same-origin',cache:'no-store',body:body?JSON.stringify(body):undefined});
- const data=await response.json().catch(()=>({error:'REQUEST_FAILED'}));
- if(!response.ok){const e=new Error(data.error||'REQUEST_FAILED');e.status=response.status;throw e}
- return data;
+const BOOKINGS_KEY='don-sapo.bookings.v1';
+const ADMIN_KEY='don-sapo.admin-password.v1';
+const SESSION_KEY='don-sapo.admin-session.v1';
+function readBookings(){try{const value=JSON.parse(localStorage.getItem(BOOKINGS_KEY)||'[]');return Array.isArray(value)?value:[]}catch{return []}}
+function writeBookings(bookings){localStorage.setItem(BOOKINGS_KEY,JSON.stringify(bookings))}
+function makeCode(){return crypto.randomUUID?crypto.randomUUID().replace(/-/g,'').slice(0,8).toUpperCase():Math.random().toString(36).slice(2,10).toUpperCase()}
+function localDateValid(date){
+ const todayKey=new Intl.DateTimeFormat('en-CA',{timeZone:'America/Sao_Paulo',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+ const a=Date.parse(date+'T12:00:00Z'),b=Date.parse(todayKey+'T12:00:00Z'),delta=(a-b)/86400000;
+ return Number.isFinite(delta)&&delta>=0&&delta<=30;
+}
+function createLocalBooking(payload){
+ const services=payload.serviceIds.map(id=>S.find(s=>s[6]===id));
+ if(services.some(s=>!s))throw new Error('INVALID_SERVICES');
+ const type=services.some(s=>s[3]==='procedure')?'procedure':'simple';
+ const match=/^(\d{2}):(00|30)$/.exec(payload.time);
+ const hour=match?Number(match[1]):-1,minute=match?Number(match[2]):-1;
+ if(!localDateValid(payload.date))throw new Error('INVALID_DATE');
+ if(hour<9||hour>18||(type==='simple'&&minute!==0)||(type==='procedure'&&minute!==30))throw new Error('INVALID_SLOT_TYPE');
+ const bookings=readBookings();
+ if(bookings.some(b=>b.booking_date===payload.date&&b.booking_time===payload.time&&b.status!=='cancelled'))throw new Error('SLOT_UNAVAILABLE');
+ const booking={id:crypto.randomUUID?crypto.randomUUID():makeCode(),booking_code:makeCode(),customer_name:payload.customerName.trim(),customer_phone:payload.customerPhone.trim(),service_ids:payload.serviceIds,service_names:services.map(s=>s[0]),total_cents:services.reduce((n,s)=>n+s[1]*100,0),slot_type:type,booking_date:payload.date,booking_time:payload.time,duration_minutes:30,status:'pending',created_at:new Date().toISOString()};
+ bookings.push(booking);writeBookings(bookings);return booking;
+}
+async function passwordDigest(password,salt){
+ const material=await crypto.subtle.importKey('raw',new TextEncoder().encode(password),'PBKDF2',false,['deriveBits']);
+ const bits=await crypto.subtle.deriveBits({name:'PBKDF2',salt,iterations:210000,hash:'SHA-256'},material,256);
+ return Array.from(new Uint8Array(bits),b=>b.toString(16).padStart(2,'0')).join('');
+}
+async function saveLocalPassword(password){
+ if(password.length<12)throw new Error('Use uma senha com pelo menos 12 caracteres.');
+ const salt=crypto.getRandomValues(new Uint8Array(16));
+ const digest=await passwordDigest(password,salt);
+ localStorage.setItem(ADMIN_KEY,JSON.stringify({salt:Array.from(salt),digest}));
+}
+async function verifyLocalPassword(password){
+ const saved=JSON.parse(localStorage.getItem(ADMIN_KEY)||'null');
+ if(!saved)return false;
+ return (await passwordDigest(password,new Uint8Array(saved.salt)))===saved.digest;
 }
 function getDateOptions(){const sel=$('date');sel.innerHTML='';for(let i=0;i<7;i++){let d=new Date();d.setDate(d.getDate()+i);sel.add(new Option(d.toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'short'}),dateKey(d)))} }
 function renderServices(){
@@ -66,7 +98,8 @@ function pick(i){selected.has(i)?selected.delete(i):selected.add(i);chosenTime='
 function selectedType(){return [...selected].some(i=>S[i][3]==='procedure')?'procedure':'simple'}
 async function refreshBookedSlots(){
  bookedSlots.clear();
- if($('date').value){try{const data=await api(`/availability?date=${encodeURIComponent($('date').value)}`);(data.booked||[]).forEach(x=>bookedSlots.add(x));}catch{msg('slotNote','Não foi possível carregar a agenda. Atualize a página e tente novamente.')}}
+ const date=$('date').value;
+ readBookings().filter(b=>b.booking_date===date&&b.status!=='cancelled').forEach(b=>bookedSlots.add(b.booking_time));
  renderSlots();
 }
 function renderSlots(){
@@ -91,12 +124,12 @@ $('bookingForm').addEventListener('submit',async e=>{
  if(name.length<2||name.length>80||phone.replace(/\D/g,'').length<10||phone.length>24){alert('Confira seu nome e WhatsApp.');return}
  const button=$('bookingForm').querySelector('button[type=submit]');button.disabled=true;button.textContent='ENVIANDO PEDIDO...';
  try{
-   const data=await api('/bookings',{method:'POST',body:{customerName:name,customerPhone:phone,serviceIds:[...selected].map(i=>S[i][6]),date:$('date').value,time:chosenTime}});
+   const data=createLocalBooking({customerName:name,customerPhone:phone,serviceIds:[...selected].map(i=>S[i][6]),date:$('date').value,time:chosenTime});
    $('result').classList.remove('hidden');
-   $('result').innerHTML=`Pedido enviado para a barbearia.<br><b>Protocolo: ${escapeHTML(data.bookingCode)}</b><br>${$('date').value.split('-').reverse().join('/')} às ${chosenTime}.<br>O horário depende da confirmação do barbeiro.`;
+   $('result').innerHTML=`Pedido salvo neste dispositivo.<br><b>Protocolo: ${escapeHTML(data.booking_code)}</b><br>${$('date').value.split('-').reverse().join('/')} às ${chosenTime}.<br>Este pedido não será enviado ao barbeiro nem aparecerá em outros aparelhos.`;
    $('notificationChoice').classList.remove('hidden');
    $('bookingForm').reset();selected.clear();chosenTime='';renderServices();await refreshBookedSlots();
- }catch(err){alert(err.message==='SLOT_UNAVAILABLE'?'Esse horário acabou de ser reservado. Escolha outro.':err.message==='INVALID_SLOT_TYPE'?'Esse tipo de atendimento não corresponde ao horário selecionado.':'Não foi possível enviar. Confira os dados e tente novamente.');await refreshBookedSlots()}
+ }catch(err){alert(err.message==='SLOT_UNAVAILABLE'?'Esse horário já está reservado neste dispositivo. Escolha outro.':err.message==='INVALID_SLOT_TYPE'?'Esse tipo de atendimento não corresponde ao horário selecionado.':err.message==='INVALID_DATE'?'Escolha uma data válida nos próximos 30 dias.':'Não foi possível salvar. Confira os dados e o armazenamento do navegador.');await refreshBookedSlots()}
  finally{button.disabled=false;button.textContent='SOLICITAR AGENDAMENTO ↗'}
 });
 $('allowNotification').addEventListener('click',async()=>{
@@ -111,45 +144,51 @@ $('scrollCatalog').addEventListener('click', () => {
   $('catalog').scrollIntoView({ behavior: 'smooth' });
 });
 function showAdminPanel(which){['adminLogin','passwordResetPanel','adminDashboard'].forEach(id=>$(id).classList.toggle('hidden',id!==which))}
-async function initializeAdmin(){showAdminPanel('adminLogin');msg('authMessage','');try{const s=await api('/admin/session');csrfToken=s.csrfToken||'';if(s.authenticated){if(s.mfaRequired){msg('mfaInstructions','Digite o código do aplicativo autenticador.');$('mfaQrWrap').classList.add('hidden');showAdminPanel('mfaPanel')}else await loadAdminBookings()}}catch{}}
+async function initializeAdmin(){
+ showAdminPanel('adminLogin');msg('authMessage','');
+ $('loginBtn').textContent=localStorage.getItem(ADMIN_KEY)?'ENTRAR':'CRIAR SENHA LOCAL';
+ if(sessionStorage.getItem(SESSION_KEY)==='1')await loadAdminBookings();
+}
 $('loginBtn').addEventListener('click',async()=>{
- const email=$('adminEmail').value.trim(),password=$('adminPassword').value;
- if(!email||!password){msg('authMessage','Informe e-mail e senha.');return}
- $('loginBtn').disabled=true;msg('authMessage','Validando acesso...');
- try{const data=await api('/admin/login',{method:'POST',body:{email,password}});csrfToken=data.csrfToken||'';await loadAdminBookings()}catch{msg('authMessage','Não foi possível entrar. Confira os dados ou tente novamente mais tarde.')}finally{$('loginBtn').disabled=false}
+ const password=$('adminPassword').value;
+ if(!password){msg('authMessage','Informe a senha local.');return}
+ $('loginBtn').disabled=true;msg('authMessage','Verificando acesso...');
+ try{
+  if(!localStorage.getItem(ADMIN_KEY)){await saveLocalPassword(password);msg('authMessage','Senha local criada neste navegador.')}
+  else if(!await verifyLocalPassword(password))throw new Error('INVALID_PASSWORD');
+  sessionStorage.setItem(SESSION_KEY,'1');$('adminPassword').value='';await loadAdminBookings();
+ }catch(err){msg('authMessage',err.message==='INVALID_PASSWORD'?'Senha incorreta.':'Não foi possível salvar a senha. Use pelo menos 12 caracteres e um navegador atualizado.')}
+ finally{$('loginBtn').disabled=false}
 });
-async function setupMfa(){try{const d=await api('/admin/mfa/setup',{method:'POST',admin:true});$('mfaQr').src=d.qrCodeDataUrl;$('mfaSecret').textContent='Chave manual: '+d.secret;msg('mfaInstructions','Cadastre esta chave no aplicativo autenticador e informe o código de 6 dígitos.');$('mfaQrWrap').classList.remove('hidden');showAdminPanel('mfaPanel')}catch{msg('authMessage','Não foi possível iniciar a configuração do autenticador.')}}
+$('forgotBtn').addEventListener('click',()=>{
+ showAdminPanel('passwordResetPanel');
+ msg('resetMessage','A redefinição remove somente a senha local deste navegador. Os agendamentos serão mantidos.');
+});
+$('savePasswordBtn').addEventListener('click',async()=>{
+ try{await saveLocalPassword($('newPassword').value);sessionStorage.setItem(SESSION_KEY,'1');$('newPassword').value='';await loadAdminBookings()}
+ catch{msg('resetMessage','Use uma senha com pelo menos 12 caracteres.')}
+});
 
 $('forgotBtn').addEventListener('click',()=>msg('authMessage','Para redefinir a senha administrativa, use o comando seguro de redefinição descrito no README.'));
 $('savePasswordBtn').addEventListener('click',()=>msg('resetMessage','A redefinição deve ser feita pelo administrador do servidor, conforme o README.'));
 async function loadAdminBookings(){
  const button=$('refreshBtn');
- const originalLabel=button?.textContent||'Atualizar agenda';
  if(button){button.disabled=true;button.textContent='Atualizando...'}
  try{
-  const d=await api('/admin/bookings');
+  const bookings=readBookings().filter(b=>b.status!=='cancelled').sort((a,b)=>a.booking_date.localeCompare(b.booking_date)||a.booking_time.localeCompare(b.booking_time));
   showAdminPanel('adminDashboard');
-  $('adminList').innerHTML=d.bookings.length?d.bookings.map(b=>`<div class="admin-card"><b>${escapeHTML(b.booking_time.slice(0,5))} · ${escapeHTML(b.customer_name)}</b><p>${escapeHTML(b.booking_date.split('-').reverse().join('/'))} · ${b.service_names.map(escapeHTML).join(', ')}</p><p>${escapeHTML(b.customer_phone)} · ${money(b.total_cents/100)}</p><p>Protocolo: ${escapeHTML(b.booking_code)} · Status: ${b.status==='pending'?'Pendente':'Confirmado'}</p>${b.status==='pending'?'<button data-action="confirmed" data-id="'+b.id+'">Confirmar pedido</button>':''}<button data-action="cancelled" data-id="${b.id}">Cancelar</button></div>`).join(''):'<p class="notice">Nenhum pedido ativo na agenda.</p>';
+  $('adminList').innerHTML=bookings.length?bookings.map(b=>`<div class="admin-card"><b>${escapeHTML(b.booking_time.slice(0,5))} · ${escapeHTML(b.customer_name)}</b><p>${escapeHTML(b.booking_date.split('-').reverse().join('/'))} · ${b.service_names.map(escapeHTML).join(', ')}</p><p>${escapeHTML(b.customer_phone)} · ${money(b.total_cents/100)}</p><p>Protocolo: ${escapeHTML(b.booking_code)} · Status: ${b.status==='pending'?'Pendente':'Confirmado'}</p>${b.status==='pending'?'<button data-action="confirmed" data-id="'+b.id+'">Confirmar pedido</button>':''}<button data-action="cancelled" data-id="${b.id}">Cancelar</button></div>`).join(''):'<p class="notice">Nenhum pedido ativo nesta agenda local.</p>';
   $('adminList').querySelectorAll('[data-action]').forEach(btn=>btn.addEventListener('click',()=>updateBooking(btn.dataset.id,btn.dataset.action)));
-  msg('agendaStatus','Agenda sincronizada às '+new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})+'.');
- }catch(err){
-  if($('adminDashboard').classList.contains('hidden')){
-   showAdminPanel('adminLogin');
-   msg('authMessage','Acesso expirado ou indisponibilidade ao carregar a agenda. Entre novamente.');
-  }else{
-   msg('agendaStatus','Não foi possível atualizar. Verifique a conexão e tente novamente.');
-  }
- }finally{
-  if(button){button.disabled=false;button.textContent=originalLabel}
- }
+  msg('agendaStatus','Agenda local atualizada às '+new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})+'.');
+ }finally{if(button){button.disabled=false;button.textContent='Atualizar agenda'}}
 }
 async function updateBooking(id,status){
- try{
-  await api(`/admin/bookings/${encodeURIComponent(id)}`,{method:'PATCH',body:{status},admin:true});
-  await loadAdminBookings();
- }catch{alert('Não foi possível atualizar o pedido.')}
+ const bookings=readBookings(),booking=bookings.find(b=>b.id===id);
+ if(!booking||!((booking.status==='pending'&&(status==='confirmed'||status==='cancelled'))||(booking.status==='confirmed'&&status==='cancelled'))){alert('Não foi possível atualizar o pedido.');return}
+ booking.status=status;writeBookings(bookings);await loadAdminBookings();await refreshBookedSlots();
 }
 $('refreshBtn').addEventListener('click',()=>loadAdminBookings());
-$('logoutBtn').addEventListener('click',async()=>{try{await api('/admin/logout',{method:'POST',admin:true})}catch{}csrfToken='';showAdminPanel('adminLogin');msg('authMessage','Você saiu da área administrativa.')});
+$('logoutBtn').addEventListener('click',()=>{sessionStorage.removeItem(SESSION_KEY);showAdminPanel('adminLogin');msg('authMessage','Você saiu da área administrativa.');initializeAdmin()});
+window.addEventListener('storage',event=>{if(event.key===BOOKINGS_KEY){refreshBookedSlots();if(!$('adminDashboard').classList.contains('hidden'))loadAdminBookings()}});
 getDateOptions();renderServices();refreshBookedSlots();
 </script></body></html>
